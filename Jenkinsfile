@@ -19,7 +19,7 @@ pipeline {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
-                        -Dsonar.login=${SONAR_TOKEN}"
+                        -Dsonar.password=test"
                 }
             }
         }
