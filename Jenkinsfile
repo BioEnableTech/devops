@@ -5,7 +5,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Clone the repository into the workspace
-                git 'https://github.com/your_username/your_repository.git'
+                git 'https://github.com/BioEnableTech/devops.git'
             }
         }
         
@@ -16,16 +16,26 @@ pipeline {
                 SONAR_HOST_URL = 'http://localhost:9000/'
                 SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
             }
-            steps {
-                // Run SonarQube Scanner with necessary options
-                script {
-                    sh "sonar-scanner \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_TOKEN \
-                        -Dsonar.projectKey=your_project_key \
-                        -Dsonar.sources=src"
-                }
-            }
+             stage('SonarQube analysis') {
+      steps {
+        script {
+          // requires SonarQube Scanner 2.8+
+          scannerHome = tool 'SonarQubeScanner-4.8.0'
+        }
+        withSonarQubeEnv('sonarqube-10.1') {
+			sh "${scannerHome}/bin/sonar-scanner \
+			 -Dsonar.host.url=http:localhost:9000 \
+ 			 -Dsonar.projectKey=smartsuite \
+  			 -Dsonar.login=admin \
+			 -Dsonar.password=test"
+		}
+ 			
+ 			
+		
+		
+    
+        }
+        }
         }
     }
     
