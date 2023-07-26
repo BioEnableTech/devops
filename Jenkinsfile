@@ -2,12 +2,6 @@ pipeline {
     agent any
     
     stages {
-        stage('Checkout') {
-            steps {
-                // Clone the repository into the workspace
-                git 'https://github.com/BioEnableTech/devops.git'
-            }
-        }
         
         stage('SonarQube Code Scanning') {
             environment {
