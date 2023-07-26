@@ -15,7 +15,7 @@ pipeline {
                     scannerHome = tool 'SonarQubeScanner-4.8.0'
                 }
                 // Use the SonarQube Scanner with appropriate environment settings
-                withSonarQubeEnv('sonarqube-10.1') {
+                withSonarQubeEnv('sonarqube-10.1.0.73491') {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
