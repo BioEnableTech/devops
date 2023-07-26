@@ -29,10 +29,14 @@ pipeline {
                 }
             }
             
-            post {
-                always {
-                    // Cleanup workspace, etc.
-                }
+                   post {
+                     always {
+                     sh 'echo "this is testing"'
+                    }
+                  }
+               
+                  
+                
                 success {
                     // Send an email notification on pipeline success (if needed)
                     emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
