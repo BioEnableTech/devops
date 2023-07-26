@@ -28,28 +28,25 @@ pipeline {
                         -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
-            
-                   post {
-                     always {
-                     sh 'echo "this is testing"'
-                    }
-                  }
-               
-                  
-                
-                success {
-                    // Send an email notification on pipeline success (if needed)
-                    emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
-                             subject: "Jenkins Pipeline - Code Scanning Success",
-                             to: "dattatray@bioenabletech.com"
-                }
-                failure {
-                    // Send an email notification on pipeline failure
-                    emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.",
-                             subject: "Jenkins Pipeline - Code Scanning Failure",
-                             to: "dattatray@bioenabletech.com"
-                }
-            }
         }
     }
-
+    
+    post {
+        always {
+            // Cleanup workspace, etc.
+            sh 'echo "this is testing"'
+        }
+        success {
+            // Send an email notification on pipeline success (if needed)
+            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
+                     subject: "Jenkins Pipeline - Code Scanning Success",
+                     to: "dattatray@bioenabletech.com"
+        }
+        failure {
+            // Send an email notification on pipeline failure
+            emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.",
+                     subject: "Jenkins Pipeline - Code Scanning Failure",
+                     to: "dattatray@bioenabletech.com"
+        }
+    }
+}
