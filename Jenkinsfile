@@ -31,10 +31,6 @@ pipeline {
         }
     }
     
-    post {
-        always {
-            // Cleanup workspace, etc.
-        }
         
         failure {
             // Send an email notification on pipeline failure
