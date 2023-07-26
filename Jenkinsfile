@@ -9,37 +9,32 @@ pipeline {
             }
         }
         
-        
         stage('SonarQube Code Scanning') {
             environment {
                 // Set SonarQube server URL and access token
                 SONAR_HOST_URL = 'http://localhost:9000/'
                 SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
             }
-             stage('SonarQube analysis') {
-      steps {
-        script {
-          // requires SonarQube Scanner 2.8+
-          scannerHome = tool 'SonarQubeScanner-4.8.0'
-        }
-        withSonarQubeEnv('sonarqube-10.1') {
-			sh "${scannerHome}/bin/sonar-scanner \
-			 -Dsonar.host.url=http:localhost:9000 \
- 			 -Dsonar.projectKey=smartsuite \
-  			 -Dsonar.login=admin \
-			 -Dsonar.password=test"
-		}
- 			
- 			
-		
-		
-    
-        }
-        }
+            steps {
+                script {
+                    // Set the SonarQube Scanner version (requires SonarQube Scanner 2.8+)
+                    scannerHome = tool 'SonarQubeScanner-4.8.0'
+                }
+                // Use the SonarQube Scanner with appropriate environment settings
+                withSonarQubeEnv('sonarqube-10.1') {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.projectKey=smartsuite \
+                        -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
         }
     }
     
-  
+    post {
+        always {
+            // Cleanup workspace, etc.
+        }
         
         failure {
             // Send an email notification on pipeline failure
