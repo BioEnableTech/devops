@@ -51,10 +51,10 @@ pipeline {
         // Additional stage for Quality gate outside of the steps block
         stage("Quality gate") {
             steps {
-                // waitForQualityGate should be inside the Quality gate stage
-                waitForQualityGate abortPipeline: true
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
             }
-        }
         
         // ... (remaining stages)
     }
