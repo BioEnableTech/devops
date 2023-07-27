@@ -6,6 +6,7 @@ pipeline {
         SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
         SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
         EMAIL_TO = 'dattatray@bioenabletech.com'
+        REPORT_FILE = 'failure_report.txt' // File to store the failure report
     }
     
     stages {
@@ -17,10 +18,11 @@ pipeline {
                     env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
 
-                sh 'echo "intentional failure" > test_failure.txt'
+                // Add a failing test case (intentional failure)
+                sh 'echo "Failing test: 1/0" > failing_test.py'
                 
                 // Run SonarQube Scanner with SonarQube credentials
-                withSonarQubeEnv('sonarqube-10.') {
+                withSonarQubeEnv('sonarqube-10.1') {
                     sh "sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
@@ -33,19 +35,28 @@ pipeline {
     post {
         always {
             sh 'echo "this is testing"'
-            sh 'rm test_failure.txt'
+            sh 'rm failing_test.py'
         }
         success {
             // Send an email notification on pipeline success (if needed)
-            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful Please review and fix the issues.\nJob URL: ${BUILD_URL}",
+            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
                      subject: "Jenkins Pipeline - Code Scanning Success",
-                     to: "${EMAIL_TO}"// Replace with the email address to receive success notifications
+                     to: "${EMAIL_TO}" // Replace with the email address to receive success notifications
         }
         failure {
-            // Send an email notification on pipeline failure
+            // Generate a failure report
+            script {
+                sh 'echo "Failure Report:" > ${REPORT_FILE}'
+                sh 'echo "Pipeline failed due to code quality issues." >> ${REPORT_FILE}'
+                sh 'echo "Job URL: ${BUILD_URL}" >> ${REPORT_FILE}'
+                // Add more relevant information to the report if needed
+            }
+            
+            // Send an email notification on pipeline failure with the failure report attached
             emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
                      subject: "Jenkins Pipeline - Code Scanning Failure",
-                     to: "${EMAIL_TO}" // Replace with the email address to receive failure notifications
+                     to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
+                     attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
         }
     }
 }
