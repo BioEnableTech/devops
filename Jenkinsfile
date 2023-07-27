@@ -18,7 +18,7 @@ pipeline {
                 withSonarQubeEnv('sonarqube-10.1.0.73491') {
                     sh "${scannerHome}/bin/sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.projectKey=smartsuite \
+                        -Dsonar.projectKey=smartsuite1 \
                         -Dsonar.password=test"
                 }
             }
