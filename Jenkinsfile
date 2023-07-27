@@ -45,12 +45,17 @@ pipeline {
                         sh "echo 'Error message: ${errorMessage}' > ${REPORT_FILE}"
                     }
                 }
+                
+                // Quality gate stage with waitForQualityGate step
+                stage("Quality gate") {
+                    steps {
+                        timeout(time: 1, unit: 'HOURS') {
+                            waitForQualityGate abortPipeline: true
+                        }
+                    }
+                }
             }
         }
-        
-        // Additional stage for Quality gate outside of the steps block
-       
-            }
         
         // ... (remaining stages)
     }
