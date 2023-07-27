@@ -18,10 +18,11 @@ pipeline {
         // ... (existing stages)
 
         stage('SonarQube analysis') {
-            steps {
+              steps {
+                // Set up SonarQube Scanner
                 script {
-                    // requires SonarQube Scanner 2.8+
-                    scannerHome = tool 'SonarQubeScanner-4.8.0'
+                    def scannerHome = tool 'SonarQubeScanner-4.8.0' // Replace with the SonarQube Scanner version you have configured in Jenkins
+                    env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
