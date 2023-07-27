@@ -22,7 +22,7 @@ pipeline {
                 sh 'echo "Failing test: 1/0" > failing_test.py'
                 
                 // Run SonarQube Scanner with SonarQube credentials
-                withSonarQubeEnv('sonarqube-10.1') {
+                withSonarQubeEnv('sonarqube-10.') {
                     sh "sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
