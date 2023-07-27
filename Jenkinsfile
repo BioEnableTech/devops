@@ -33,6 +33,18 @@ pipeline {
                             -Dsonar.password=${SONAR_PASSWORD}"
                     }
                 }
+                
+                script {
+                    // Generate a failure report if catchError block was executed (i.e., if SonarQube analysis failed)
+                    if (currentBuild.result == 'FAILURE') {
+                        def errorOutput = catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                            // Dummy stage to trigger the catchError block
+                            sh 'echo "Intentional Failure"'
+                        }
+                        def errorMessage = errorOutput.getLog(10).join('\n')
+                        sh "echo 'Error message: ${errorMessage}' > ${REPORT_FILE}"
+                    }
+                }
             }
         }
         
@@ -42,21 +54,22 @@ pipeline {
     // ... (existing post section)
 
     // Send an email notification on pipeline failure with the failure report attached
-    failure {
-        script {
-            // Generate a failure report
-            def errorOutput = catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                // Dummy stage to trigger the catchError block
-                sh 'echo "Intentional Failure"'
-            }
-
-            def errorMessage = errorOutput.getLog(10).join('\n')
-            sh "echo 'Error message: ${errorMessage}' > ${REPORT_FILE}"
+    post {
+        always {
+            // Cleanup workspace, etc.
         }
-
-        emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
-                 subject: "Jenkins Pipeline - Code Scanning Failure",
-                 to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
-                 attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
+        success {
+            // Send an email notification on pipeline success (if needed)
+            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
+                     subject: "Jenkins Pipeline - Code Scanning Success",
+                     to: "${EMAIL_TO}" // Replace with the email address to receive success notifications
+        }
+        failure {
+            // Send an email notification on pipeline failure with the failure report attached
+            emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
+                     subject: "Jenkins Pipeline - Code Scanning Failure",
+                     to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
+                     attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
+        }
     }
 }
