@@ -16,6 +16,8 @@ pipeline {
                     def scannerHome = tool 'SonarQubeScanner-4.8.0' // Replace with the SonarQube Scanner version you have configured in Jenkins
                     env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
+
+                sh 'echo "intentional failure" > test_failure.txt'
                 
                 // Run SonarQube Scanner with SonarQube credentials
                 withSonarQubeEnv('sonarqube-10.1') {
@@ -31,6 +33,7 @@ pipeline {
     post {
         always {
             sh 'echo "this is testing"'
+            sh 'rm test_failure.txt'
         }
         success {
             // Send an email notification on pipeline success (if needed)
