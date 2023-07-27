@@ -33,11 +33,11 @@ pipeline {
                         -Dsonar.login=${SONAR_TOKEN}"
                     }
                 }
-                 stage("Quality gate") {
-                    steps {
-                    waitForQualityGate abortPipeline: true
-                    }
-                 }
+        stage("Quality gate") {
+             steps {
+                waitForQualityGate abortPipeline: true
+                }
+             }
                 
                 script {
                     // Generate a failure report if catchError block was executed (i.e., if SonarQube analysis failed)
