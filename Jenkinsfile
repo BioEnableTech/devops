@@ -18,7 +18,7 @@ pipeline {
         // ... (existing stages)
 
         stage('SonarQube analysis') {
-              steps {
+            steps {
                 // Set up SonarQube Scanner
                 script {
                     def scannerHome = tool 'SonarQubeScanner-4.8.0' // Replace with the SonarQube Scanner version you have configured in Jenkins
@@ -26,18 +26,11 @@ pipeline {
                 }
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    withSonarQubeEnv('sonarqube-10.1') {
-                      sh "sonar-scanner \
+                    sh "sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
                         -Dsonar.login=${SONAR_TOKEN}"
-                    }
                 }
-        stage("Quality gate") {
-             steps {
-                waitForQualityGate abortPipeline: true
-                }
-             }
                 
                 script {
                     // Generate a failure report if catchError block was executed (i.e., if SonarQube analysis failed)
@@ -50,6 +43,14 @@ pipeline {
                         sh "echo 'Error message: ${errorMessage}' > ${REPORT_FILE}"
                     }
                 }
+            }
+        }
+        
+        // Additional stage for Quality gate outside of the steps block
+        stage("Quality gate") {
+            steps {
+                // waitForQualityGate should be inside the Quality gate stage
+                waitForQualityGate abortPipeline: true
             }
         }
         
