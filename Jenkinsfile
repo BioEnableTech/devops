@@ -5,6 +5,7 @@ pipeline {
         // SonarQube credentials
         SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
         SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
+        EMAIL_TO = 'dattatray@bioenabletech.com'
     }
     
     stages {
@@ -35,13 +36,13 @@ pipeline {
             // Send an email notification on pipeline success (if needed)
             emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
                      subject: "Jenkins Pipeline - Code Scanning Success",
-                     to: "dattatray@bioenabletech.com" // Replace with the email address to receive success notifications
+                     to: "${EMAIL_TO}"// Replace with the email address to receive success notifications
         }
         failure {
             // Send an email notification on pipeline failure
             emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.",
                      subject: "Jenkins Pipeline - Code Scanning Failure",
-                     to: "dattatray@bioenabletech.com" // Replace with the email address to receive failure notifications
+                     to: "${EMAIL_TO}" // Replace with the email address to receive failure notifications
         }
     }
 }
