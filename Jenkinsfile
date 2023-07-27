@@ -8,9 +8,9 @@ pipeline {
     // Environment variables
     environment {
         // ... (existing environment variables)
-        SONAR_PROJECT_KEY = 'smartsuite'
-        SONAR_LOGIN = 'admin'
-        SONAR_PASSWORD = 'test'
+        SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
+        SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
+        EMAIL_TO = 'dattatray@bioenabletech.com'
         REPORT_FILE = 'failure_report.txt' // File to store the failure report
     }
 
