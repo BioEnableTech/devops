@@ -2,9 +2,6 @@ pipeline {
     agent any
     
     environment {
-        // GitHub credentials
-        GITHUB_CREDENTIALS = credentials('multi-repo') // Add your GitHub credentials as Jenkins credential
-        
         // SonarQube credentials
         SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
         SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
