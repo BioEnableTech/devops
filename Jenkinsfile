@@ -1,23 +1,16 @@
 pipeline {
     agent any
     
-    tools {
-        maven 'M3'
-    }
-  
-    // Environment variables
     environment {
-        // ... (existing environment variables)
+        // SonarQube credentials
         SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
         SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
         EMAIL_TO = 'dattatray@bioenabletech.com'
         REPORT_FILE = 'failure_report.txt' // File to store the failure report
     }
-
+    
     stages {
-        // ... (existing stages)
-
-        stage('SonarQube analysis') {
+        stage('SonarQube Code Scanning') {
             steps {
                 // Set up SonarQube Scanner
                 script {
@@ -25,39 +18,24 @@ pipeline {
                     env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
 
-                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    withSonarQubeEnv('sonarqube-10.1') { // Include the withSonarQubeEnv wrapper here
-                        sh "sonar-scanner \
-                            -Dsonar.host.url=${SONAR_HOST_URL} \
-                            -Dsonar.projectKey=smartsuite \
-                            -Dsonar.login=${SONAR_TOKEN}"
-                    }
-                }
+                // Add a failing test case (intentional failure)
+                sh 'echo "Failing test: 1/0" > failing_test.py'
                 
-                script {
-                    // Generate a failure report if catchError block was executed (i.e., if SonarQube analysis failed)
-                    if (currentBuild.result == 'FAILURE') {
-                        def errorOutput = catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                            // Dummy stage to trigger the catchError block
-                            sh 'echo "Intentional Failure"'
-                        }
-                        def errorMessage = errorOutput.getLog(10).join('\n')
-                        sh "echo 'Error message: ${errorMessage}' > ${REPORT_FILE}"
-                    }
+                // Run SonarQube Scanner with SonarQube credentials
+                withSonarQubeEnv('sonarqube-10.') {
+                    sh "sonar-scanner \
+                        -Dsonar.host.url=${SONAR_HOST_URL} \
+                        -Dsonar.projectKey=smartsuite \
+                        -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
         }
-        
-        // ... (remaining stages)
     }
-  
-    // ... (existing post section)
-
-    // Send an email notification on pipeline failure with the failure report attached
+    
     post {
         always {
-            // Cleanup workspace, etc.
-            sh 'echo "this is test"'
+            sh 'echo "this is testing"'
+            sh 'rm failing_test.py'
         }
         success {
             // Send an email notification on pipeline success (if needed)
@@ -66,22 +44,19 @@ pipeline {
                      to: "${EMAIL_TO}" // Replace with the email address to receive success notifications
         }
         failure {
+            // Generate a failure report
+            script {
+                sh 'echo "Failure Report:" > ${REPORT_FILE}'
+                sh 'echo "Pipeline failed due to code quality issues." >> ${REPORT_FILE}'
+                sh 'echo "Job URL: ${BUILD_URL}" >> ${REPORT_FILE}'
+                // Add more relevant information to the report if needed
+            }
+            
             // Send an email notification on pipeline failure with the failure report attached
             emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
                      subject: "Jenkins Pipeline - Code Scanning Failure",
                      to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
                      attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
-        }
-    }
-    
-    // Quality gate stage with waitForQualityGate step
-    post {
-        failure {
-            script {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
         }
     }
 }
