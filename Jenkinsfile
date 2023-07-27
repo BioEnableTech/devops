@@ -26,10 +26,12 @@ pipeline {
                 }
 
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
-                    sh "sonar-scanner \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.projectKey=smartsuite \
-                        -Dsonar.login=${SONAR_TOKEN}"
+                    withSonarQubeEnv('sonarqube-10.1') { // Include the withSonarQubeEnv wrapper here
+                        sh "sonar-scanner \
+                            -Dsonar.host.url=${SONAR_HOST_URL} \
+                            -Dsonar.projectKey=smartsuite \
+                            -Dsonar.login=${SONAR_TOKEN}"
+                    }
                 }
                 
                 script {
