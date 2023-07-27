@@ -1,62 +1,62 @@
 pipeline {
     agent any
     
+    tools {
+        maven 'M3'
+    }
+  
+    // Environment variables
     environment {
-        // SonarQube credentials
-        SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
-        SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
-        EMAIL_TO = 'dattatray@bioenabletech.com'
+        // ... (existing environment variables)
+        SONAR_PROJECT_KEY = 'smartsuite'
+        SONAR_LOGIN = 'admin'
+        SONAR_PASSWORD = 'test'
         REPORT_FILE = 'failure_report.txt' // File to store the failure report
     }
-    
+
     stages {
-        stage('SonarQube Code Scanning') {
+        // ... (existing stages)
+
+        stage('SonarQube analysis') {
             steps {
-                // Set up SonarQube Scanner
                 script {
-                    def scannerHome = tool 'SonarQubeScanner-4.8.0' // Replace with the SonarQube Scanner version you have configured in Jenkins
-                    env.PATH = "${scannerHome}/bin:${env.PATH}"
+                    // requires SonarQube Scanner 2.8+
+                    scannerHome = tool 'SonarQubeScanner-4.8.0'
                 }
 
-                // Add a failing test case (intentional failure)
-                sh 'echo "Failing test: 1/0" > failing_test.py'
-                
-                // Run SonarQube Scanner with SonarQube credentials
-                withSonarQubeEnv('sonarqube-10.') {
-                    sh "sonar-scanner \
-                        -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.projectKey=smartsuite \
-                        -Dsonar.login=${SONAR_TOKEN}"
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    withSonarQubeEnv('sonarqube-9.8') {
+                        sh "${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.host.url=http://35.200.157.184:9000 \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.login=${SONAR_LOGIN} \
+                            -Dsonar.password=${SONAR_PASSWORD}"
+                    }
                 }
             }
         }
+        
+        // ... (remaining stages)
     }
-    
-    post {
-        always {
-            sh 'echo "this is testing"'
-            sh 'rm failing_test.py'
-        }
-        success {
-            // Send an email notification on pipeline success (if needed)
-            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
-                     subject: "Jenkins Pipeline - Code Scanning Success",
-                     to: "${EMAIL_TO}" // Replace with the email address to receive success notifications
-        }
-        failure {
+  
+    // ... (existing post section)
+
+    // Send an email notification on pipeline failure with the failure report attached
+    failure {
+        script {
             // Generate a failure report
-            script {
-                sh 'echo "Failure Report:" > ${REPORT_FILE}'
-                sh 'echo "Pipeline failed due to code quality issues." >> ${REPORT_FILE}'
-                sh 'echo "Job URL: ${BUILD_URL}" >> ${REPORT_FILE}'
-                // Add more relevant information to the report if needed
+            def errorOutput = catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                // Dummy stage to trigger the catchError block
+                sh 'echo "Intentional Failure"'
             }
-            
-            // Send an email notification on pipeline failure with the failure report attached
-            emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
-                     subject: "Jenkins Pipeline - Code Scanning Failure",
-                     to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
-                     attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
+
+            def errorMessage = errorOutput.getLog(10).join('\n')
+            sh "echo 'Error message: ${errorMessage}' > ${REPORT_FILE}"
         }
+
+        emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
+                 subject: "Jenkins Pipeline - Code Scanning Failure",
+                 to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
+                 attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
     }
 }
