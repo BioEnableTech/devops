@@ -34,9 +34,10 @@ pipeline {
                     }
                 }
                  stage("Quality gate") {
-            steps {
-                waitForQualityGate abortPipeline: true
-            }
+                    steps {
+                    waitForQualityGate abortPipeline: true
+                    }
+                 }
                 
                 script {
                     // Generate a failure report if catchError block was executed (i.e., if SonarQube analysis failed)
