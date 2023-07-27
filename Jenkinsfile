@@ -7,8 +7,7 @@ pipeline {
         SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
     }
     
-   
-        
+    stages {
         stage('SonarQube Code Scanning') {
             steps {
                 // Set up SonarQube Scanner
@@ -21,7 +20,7 @@ pipeline {
                 withSonarQubeEnv('sonarqube-10.1') {
                     sh "sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
-                        -Dsonar.projectKey=your_project_key \
+                        -Dsonar.projectKey=smartsuite \
                         -Dsonar.login=${SONAR_TOKEN}"
                 }
             }
@@ -30,7 +29,7 @@ pipeline {
     
     post {
         always {
-                sh 'echo "this is testing"'
+            sh 'echo "this is testing"'
         }
         success {
             // Send an email notification on pipeline success (if needed)
