@@ -4,7 +4,7 @@ pipeline {
     environment {
         // SonarQube credentials
         SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
-        SONAR_HOST_URL = 'http://locahost:900/' // Replace with your SonarQube server URL
+        SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
         EMAIL_TO = 'dattatray@bioenabletech.com'
     }
     
@@ -20,7 +20,7 @@ pipeline {
                 sh 'echo "intentional failure" > test_failure.txt'
                 
                 // Run SonarQube Scanner with SonarQube credentials
-                withSonarQubeEnv('sonarqube-10.1') {
+                withSonarQubeEnv('sonarqube-10.') {
                     sh "sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
