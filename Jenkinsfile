@@ -15,7 +15,7 @@ pipeline {
             steps {
                 script {
                     // Set the SonarQube Scanner version (requires SonarQube Scanner 2.8+)
-                    scannerHome = tool 'SonarQubeScanner-4.8.0'
+                    scannerHome = tool 'SonarQubeScanner-2.8'
                 }
                 // Use the SonarQube Scanner with appropriate environment settings
                 withSonarQubeEnv('sonarqube-10.1.0.73491') {
