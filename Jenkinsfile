@@ -37,13 +37,13 @@ pipeline {
         }
         success {
             // Send an email notification on pipeline success (if needed)
-            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful.",
+            emailext body: "Jenkins pipeline for code scanning with SonarQube was successful Please review and fix the issues.\nJob URL: ${BUILD_URL}",
                      subject: "Jenkins Pipeline - Code Scanning Success",
                      to: "${EMAIL_TO}"// Replace with the email address to receive success notifications
         }
         failure {
             // Send an email notification on pipeline failure
-            emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.",
+            emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
                      subject: "Jenkins Pipeline - Code Scanning Failure",
                      to: "${EMAIL_TO}" // Replace with the email address to receive failure notifications
         }
