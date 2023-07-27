@@ -22,11 +22,18 @@ pipeline {
                 sh 'echo "Failing test: 1/0" > failing_test.py'
                 
                 // Run SonarQube Scanner with SonarQube credentials
-                withSonarQubeEnv('sonarqube-10.') {
+                withSonarQubeEnv('sonarqube-10.1') {
                     sh "sonar-scanner \
                         -Dsonar.host.url=${SONAR_HOST_URL} \
                         -Dsonar.projectKey=smartsuite \
                         -Dsonar.login=${SONAR_TOKEN}"
+                }
+            }
+        }
+        stage("Quality gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
