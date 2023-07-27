@@ -57,6 +57,7 @@ pipeline {
     post {
         always {
             // Cleanup workspace, etc.
+            sh 'echo "this is test"'
         }
         success {
             // Send an email notification on pipeline success (if needed)
