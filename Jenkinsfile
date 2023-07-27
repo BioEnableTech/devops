@@ -4,7 +4,7 @@ pipeline {
     environment {
         // SonarQube credentials
         SONAR_TOKEN = credentials('sonarqube-token') // Add SonarQube token as Jenkins credential
-        SONAR_HOST_URL = 'http://localhost:9000/' // Replace with your SonarQube server URL
+        SONAR_HOST_URL = 'http://localhost:900/' // Replace with your SonarQube server URL
         EMAIL_TO = 'dattatray@bioenabletech.com'
     }
     
