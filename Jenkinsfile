@@ -18,6 +18,14 @@ pipeline {
                     env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
 
+                stage("Quality gate") {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
                 // Add a failing test case (intentional failure)
                 sh 'echo "Failing test: 1/0" > failing_test.py'
                 
@@ -30,13 +38,7 @@ pipeline {
                 }
             }
         }
-        stage("Quality gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
+        
     }
     
     post {
