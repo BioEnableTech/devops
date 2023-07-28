@@ -18,7 +18,7 @@ pipeline {
                     env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
 
-                stage("Quality gate") {
+        stage("Quality gate") {
             steps {
                 timeout(time: 1, unit: 'HOURS') {
                     waitForQualityGate abortPipeline: true
