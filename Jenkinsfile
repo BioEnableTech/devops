@@ -52,18 +52,18 @@ pipeline {
                 // Add more relevant information to the report if needed
             }
             
+            // Quality gate with waitForQualityGate step and a timeout of 1 minute
+            script {
+                timeout(time: 1, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+            
             // Send an email notification on pipeline failure with the failure report attached
             emailext body: "Jenkins pipeline for code scanning with SonarQube has failed. Please review and fix the issues.\nJob URL: ${BUILD_URL}",
                      subject: "Jenkins Pipeline - Code Scanning Failure",
                      to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
                      attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
-            
-            // Quality gate with waitForQualityGate step
-            script {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
         }
     }
 }
