@@ -18,14 +18,6 @@ pipeline {
                     env.PATH = "${scannerHome}/bin:${env.PATH}"
                 }
 
-        stage("Quality gate") {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
-                }
-            }
-        }
-
                 // Add a failing test case (intentional failure)
                 sh 'echo "Failing test: 1/0" > failing_test.py'
                 
@@ -38,7 +30,6 @@ pipeline {
                 }
             }
         }
-        
     }
     
     post {
@@ -66,6 +57,15 @@ pipeline {
                      subject: "Jenkins Pipeline - Code Scanning Failure",
                      to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
                      attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
+        }
+        
+        // Quality gate stage with waitForQualityGate step
+        failure {
+            script {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
         }
     }
 }
