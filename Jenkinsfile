@@ -57,10 +57,8 @@ pipeline {
                      subject: "Jenkins Pipeline - Code Scanning Failure",
                      to: "${EMAIL_TO}", // Replace with the email address to receive failure notifications
                      attachmentsPattern: "${REPORT_FILE}" // Attach the generated report to the email
-        }
-        
-        // Quality gate stage with waitForQualityGate step
-        failure {
+            
+            // Quality gate with waitForQualityGate step
             script {
                 timeout(time: 1, unit: 'HOURS') {
                     waitForQualityGate abortPipeline: true
